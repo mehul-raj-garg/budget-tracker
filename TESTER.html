@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Monthly Budget Tracker</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Poppins', sans-serif;
+    }
+    body {
+      background: linear-gradient(to right, #f3f4f6, #e0f7fa);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 30px;
+      transition: background 0.3s ease;
+    }
+    body.dark-mode {
+      background: linear-gradient(to right, #1e1e1e, #2c3e50);
+      color: #f0f0f0;
+    }
+    .container {
+      background: white;
+      padding: 30px 40px;
+      border-radius: 20px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 900px;
+      transition: background 0.3s ease, color 0.3s ease;
+      position: relative;
+    }
+    body.dark-mode .container {
+      background: #2b2b2b;
+      color: #f0f0f0;
+    }
+    h1 {
+      text-align: center;
+      color: #00796b;
+      font-size: 2em;
+      margin-bottom: 25px;
+    }
+    body.dark-mode h1 {
+      color: #4db6ac;
+    }
+    select, input, button {
+      padding: 12px;
+      border: none;
+      border-radius: 12px;
+      font-size: 15px;
+      margin-bottom: 10px;
+      width: 100%;
+    }
+    select, input {
+      background-color: #f9f9f9;
+      border: 1px solid #ccc;
+      transition: background 0.3s ease;
+    }
+    body.dark-mode select,
+    body.dark-mode input {
+      background-color: #444;
+      border: 1px solid #666;
+      color: #f0f0f0;
+    }
+    button {
+      background: #00796b;
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    button:hover {
+      background: #004d40;
+    }
+    .main-sections {
+      display: flex;
+      gap: 30px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+    .left-column, .right-column {
+      flex: 1;
+      min-width: 280px;
+    }
+    .corner-buttons {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .corner-buttons button {
+      flex: 1;
+      background: #0288d1;
+    }
+    .corner-buttons .edit-budget-button {
+      background: #fbc02d;
+      color: #333;
+    }
+    .corner-buttons .edit-budget-button:hover {
+      background: #f9a825;
+    }
+    .corner-buttons button:hover {
+      background: #01579b;
+    }
+    .total, .budget-remaining {
+      font-weight: bold;
+      text-align: right;
+      margin: 10px 0;
+      font-size: 1.1em;
+    }
+    .readonly-warning {
+      text-align: center;
+      color: red;
+      font-size: 0.9em;
+      margin-bottom: 10px;
+    }
+    .warning-banner {
+      background: #ff5252;
+      color: white;
+      padding: 15px;
+      font-size: 1.2em;
+      font-weight: bold;
+      text-align: center;
+      border-radius: 12px;
+      margin-bottom: 15px;
+      display: none; /* Hidden by default */
+    }
+    .low-budget-warning {
+      background: #ffc107; /* Amber for low budget */
+      color: #333;
+      padding: 10px;
+      font-size: 1em;
+      font-weight: bold;
+      text-align: center;
+      border-radius: 12px;
+      margin-bottom: 15px;
+      display: none; /* Hidden by default */
+    }
+    .expense-item {
+      background: #f0fdf4;
+      padding: 15px;
+      border-left: 5px solid #43a047;
+      border-radius: 12px;
+      margin: 10px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+    body.dark-mode .expense-item {
+      background: #37474f;
+      border-left-color: #81c784;
+    }
+    .expense-item .details {
+      flex: 1;
+    }
+    .expense-item .main-info {
+      display: flex;
+      justify-content: space-between;
+      font-weight: 500;
+      margin-bottom: 4px;
+    }
+    .expense-item .date-info {
+      font-size: 0.85em;
+      color: #666;
+    }
+    body.dark-mode .expense-item .date-info {
+      color: #ccc;
+    }
+    .expense-item button {
+      background: #e53935;
+      color: white;
+      border: none;
+      padding: 8px 12px;
+      font-size: 0.9em;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+    .expense-item button:hover {
+      background: #b71c1c;
+    }
+    .dark-toggle {
+      text-align: right;
+      margin-bottom: 10px;
+    }
+    .dark-toggle button {
+      background-color: #333;
+      color: #fff;
+      font-size: 0.9em;
+      padding: 8px 16px;
+      border-radius: 20px;
+    }
+    @media screen and (max-width: 600px) {
+      .main-sections {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="dark-toggle">
+      <button onclick="toggleDarkMode()">🌗 Toggle Dark Mode</button>
+    </div>
+    <h1>🗓️ Monthly Budget Tracker</h1>
+    <div id="exceeded-warning" class="warning-banner">🚨 Warning: You have exceeded your budget!</div>
+    <div id="low-budget-warning" class="low-budget-warning">⚠️ Warning: Your remaining budget is low!</div>
+    <div class="main-sections">
+      <div class="left-column">
+        <select id="month-selector"></select>
+        <div class="budget-remaining" id="current-budget"></div>
+        <input type="number" id="budget-input" placeholder="Set / Update Monthly Budget (₹)" />
+        <div class="corner-buttons">
+          <button onclick="setBudget()">📂 Set Budget</button>
+          <button onclick="addToBudget()">➕ Add to Budget</button>
+          <button class="edit-budget-button" onclick="editBudget()">✏️ Edit Budget</button>
+        </div>
+        <button onclick="showCalendar()">📆 Yearly Calendar</button>
+      </div>
+      <div class="right-column">
+        <input type="number" id="amount" placeholder="Amount (₹)" />
+        <input type="text" id="note" placeholder="Note (e.g. Maggi, Recharge)" />
+        <button onclick="addExpense()">➕ Add Expense</button>
+      </div>
+    </div>
+    <div class="readonly-warning" id="readonly-warning"></div>
+    <div class="total" id="total">Total Spent: ₹0</div>
+    <div class="budget-remaining" id="remaining">Remaining: ₹0</div>
+    <div id="expense-list"></div>
+  </div>
+  <script>
+    const budgetInput = document.getElementById('budget-input');
+    const amountInput = document.getElementById('amount');
+    const noteInput = document.getElementById('note');
+    const expenseList = document.getElementById('expense-list');
+    const totalDisplay = document.getElementById('total');
+    const remainingDisplay = document.getElementById('remaining');
+    const currentBudgetDisplay = document.getElementById('current-budget');
+    const monthSelector = document.getElementById('month-selector');
+    const exceededWarningBanner = document.getElementById('exceeded-warning');
+    const lowBudgetWarningBanner = document.getElementById('low-budget-warning');
+
+    let data = JSON.parse(localStorage.getItem('budgetData')) || {};
+    let currentMonth = new Date().toLocaleString('default', { month: 'long', year: 'numeric' });
+
+    function toggleDarkMode() {
+      document.body.classList.toggle('dark-mode');
+    }
+
+    function saveData() {
+      localStorage.setItem('budgetData', JSON.stringify(data));
+    }
+
+    function populateMonthSelector() {
+      const months = [];
+      for (let i = 0; i < 12; i++) {
+        const date = new Date();
+        date.setMonth(i);
+        const label = `${date.toLocaleString('default', { month: 'long' })} ${new Date().getFullYear()}`;
+        months.push(label);
+      }
+      monthSelector.innerHTML = months.map(m => `<option value="${m}" ${m === currentMonth ? 'selected' : ''}>${m}</option>`).join('');
+    }
+
+    function render() {
+      const monthData = data[currentMonth] || { budget: 0, expenses: [] };
+      const totalSpent = monthData.expenses.reduce((acc, e) => acc + e.amount, 0);
+      const remaining = monthData.budget - totalSpent;
+
+      currentBudgetDisplay.textContent = `📊 Budget for ${currentMonth}: ₹${monthData.budget}`;
+      totalDisplay.textContent = `Total Spent: ₹${totalSpent}`;
+      remainingDisplay.textContent = `Remaining: ₹${remaining}`;
+
+      // Handle warnings
+      exceededWarningBanner.style.display = 'none';
+      lowBudgetWarningBanner.style.display = 'none';
+
+      if (remaining < 0) {
+        exceededWarningBanner.style.display = 'block';
+      } else if (remaining >= 0 && remaining <= 200) {
+        lowBudgetWarningBanner.style.display = 'block';
+      }
+
+      expenseList.innerHTML = monthData.expenses.map((e, i) => `
+        <div class="expense-item">
+          <div class="details">
+            <div class="main-info">
+              <span>${e.note}</span>
+              <span>₹${e.amount}</span>
+            </div>
+            <div class="date-info">${e.date}</div>
+          </div>
+          <button onclick="deleteExpense(${i})">🗑️</button>
+        </div>
+      `).join('');
+    }
+
+    function setBudget() {
+      const value = parseFloat(budgetInput.value);
+      if (isNaN(value) || value <= 0) {
+        alert('Please enter a valid positive number for your budget.');
+        return;
+      }
+      if (!data[currentMonth]) data[currentMonth] = { budget: 0, expenses: [] };
+      data[currentMonth].budget = value;
+      saveData();
+      render();
+      budgetInput.value = '';
+      alert(`Budget for ${currentMonth} has been set to ₹${value}.`);
+    }
+
+    function addToBudget() {
+      const value = parseFloat(budgetInput.value);
+      if (isNaN(value) || value <= 0) {
+        alert('Please enter a valid positive amount to add to your budget.');
+        return;
+      }
+      if (!data[currentMonth]) data[currentMonth] = { budget: 0, expenses: [] };
+      data[currentMonth].budget += value;
+      saveData();
+      render();
+      budgetInput.value = '';
+      alert(`₹${value} added to your budget for ${currentMonth}.`);
+    }
+
+    function editBudget() {
+      const newBudgetValue = parseFloat(budgetInput.value);
+      if (isNaN(newBudgetValue) || newBudgetValue < 0) {
+        alert('Please enter a valid non-negative number for the budget.');
+        return;
+      }
+      if (!data[currentMonth]) data[currentMonth] = { budget: 0, expenses: [] };
+      data[currentMonth].budget = newBudgetValue;
+      saveData();
+      render();
+      budgetInput.value = '';
+      alert(`Budget for ${currentMonth} has been updated to ₹${newBudgetValue}.`);
+    }
+
+    function addExpense() {
+      const amount = parseFloat(amountInput.value);
+      const note = noteInput.value.trim();
+      if (isNaN(amount) || amount <= 0 || note === '') {
+        alert('Please enter a valid positive amount and a note for your expense.');
+        return;
+      }
+      if (!data[currentMonth]) data[currentMonth] = { budget: 0, expenses: [] };
+      data[currentMonth].expenses.push({ amount, note, date: new Date().toLocaleString() });
+      saveData();
+      render();
+      amountInput.value = '';
+      noteInput.value = '';
+    }
+
+    function deleteExpense(index) {
+      if (!confirm('Are you sure you want to delete this expense?')) return;
+      data[currentMonth].expenses.splice(index, 1);
+      saveData();
+      render();
+    }
+
+    function showCalendar() {
+      let calendarContent = `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Yearly Budget Calendar</title><style>body { font-family: 'Poppins', sans-serif; padding: 20px; background-color: #f4f7f6; color: #333; } h1 { color: #00796b; text-align: center; margin-bottom: 30px; } .month-summary { background-color: #e0f2f1; border-left: 5px solid #00796b; padding: 15px; margin-bottom: 15px; border-radius: 8px; } .month-summary strong { color: #004d40; } .no-data { text-align: center; color: #777; margin-top: 50px; }</style></head><body><h1>Yearly Budget Overview</h1>`;
+      const months = Object.keys(data).sort((a, b) => new Date(a) - new Date(b));
+      if (months.length === 0) {
+        calendarContent += `<p class="no-data">No budget data available for any month.</p>`;
+      } else {
+        months.forEach(month => {
+          const monthData = data[month];
+          const spent = monthData.expenses.reduce((acc, e) => acc + e.amount, 0);
+          calendarContent += `<div class="month-summary"><strong>${month}</strong><br>Budget: ₹${monthData.budget}<br>Spent: ₹${spent}<br>Remaining: ₹${monthData.budget - spent}</div>`;
+        });
+      }
+      calendarContent += `</body></html>`;
+      const newWindow = window.open('', '_blank');
+      newWindow.document.write(calendarContent);
+      newWindow.document.close();
+    }
+
+    monthSelector.addEventListener('change', () => {
+      currentMonth = monthSelector.value;
+      render();
+    });
+
+    populateMonthSelector();
+    render();
+  </script>
+</body>
+</html>
